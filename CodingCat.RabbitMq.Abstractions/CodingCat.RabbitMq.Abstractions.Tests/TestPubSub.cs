@@ -2,11 +2,9 @@
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
@@ -28,36 +26,31 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
             // Arrange
             var expected = Guid.NewGuid().ToString();
-            var notifier = new AutoResetEvent(false);
-
-            var channel = this.UsingConnection.CreateModel();
             var serializer = new StringSerializer();
 
-            var publisher = new SimplePublisher<string>(channel)
-            {
-                InputSerializer = serializer,
-                RoutingKey = QUEUE_NAME
-            };
-            var subscriber = new SimpleSubscriber<string>(
-                channel,
+            var publisher = this.CreateStringPublisher(
+                string.Empty,
+                QUEUE_NAME
+            );
+            var subscriber = this.CreateStringSubscriber(
                 QUEUE_NAME,
                 this.StringInputProcessor
-            )
-            {
-                InputSerializer = serializer
-            }.Subscribe();
+            ).Subscribe();
 
             // Act
-            subscriber.Processed += (sender, e) => notifier.Set();
-            publisher.Send(expected);
-            notifier.WaitOne();
+            using (subscriber)
+            {
+                var notifier = this.GetProcessedNotifier(subscriber);
+
+                using (publisher) publisher.Send(expected);
+                notifier.WaitOne();
+            }
 
             // Assert
             Assert.IsTrue(this.StringInputProcessor
                 .ProcessedInputs
                 .Contains(expected)
             );
-            subscriber.Dispose();
         }
 
         [TestMethod]
@@ -69,36 +62,23 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var input = new Random().Next(0, 1000);
             var expected = input + 1;
 
-            var channel = this.UsingConnection.CreateModel();
-            var serializer = new Int32Serializer();
-
-            var publisher = new SimplePublisher<int, int>(
-                this.UsingConnection
-            )
-            {
-                InputSerializer = serializer,
-                OutputSerializer = serializer,
-                RoutingKey = QUEUE_NAME
-            };
-            var processor = new SimpleProcessor<int, int>(
-                val => val + 1
+            var publisher = this.CreateInt32Publisher(
+                string.Empty,
+                QUEUE_NAME
             );
-            var subscriber = new SimpleSubscriber<int, int>(
-                channel,
+            var subscriber = this.CreateInt32Subscriber(
                 QUEUE_NAME,
-                processor
-            )
-            {
-                InputSerializer = serializer,
-                OutputSerializer = serializer
-            }.Subscribe();
+                new SimpleProcessor<int, int>(val => val + 1)
+            ).Subscribe();
 
             // Act
-            var actual = publisher.Send(input);
+            var actual = int.MinValue;
+            using (subscriber)
+            using (publisher)
+                actual = publisher.Send(input);
 
             // Assert
             Assert.AreEqual(expected, actual);
-            subscriber.Dispose();
         }
 
         protected override IEnumerable<Exchange> DeclareExchanges()
@@ -108,7 +88,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
         protected override IEnumerable<Queue> DeclareQueues()
         {
-            using(var channel = this.UsingConnection.CreateModel())
+            using (var channel = this.UsingConnection.CreateModel())
             {
                 return new string[]
                 {
