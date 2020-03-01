@@ -8,7 +8,7 @@ using System.Threading;
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
     [TestClass]
-    public class TestSubscribers : IDisposable
+    public class TestPubSub : IDisposable
     {
         public IConnection UsingConnection { get; }
 
@@ -16,7 +16,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
         #region Constructor(s)
 
-        public TestSubscribers()
+        public TestPubSub()
         {
             this.UsingConnection = new ConnectionFactory()
             {
