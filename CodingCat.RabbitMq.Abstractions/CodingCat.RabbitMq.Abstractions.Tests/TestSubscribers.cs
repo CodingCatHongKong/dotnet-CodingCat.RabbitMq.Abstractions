@@ -2,10 +2,8 @@
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
