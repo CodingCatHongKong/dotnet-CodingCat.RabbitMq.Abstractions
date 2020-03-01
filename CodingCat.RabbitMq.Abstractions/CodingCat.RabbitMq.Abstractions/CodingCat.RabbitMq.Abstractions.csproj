@@ -4,4 +4,8 @@
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\dotnet-CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>
