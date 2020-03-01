@@ -10,7 +10,7 @@ namespace CodingCat.RabbitMq.Abstractions
         protected IModel Channel { get; }
 
         public string ExchangeName { get; set; } = string.Empty;
-        public string RoutingKey { get; set; } = null;
+        public string RoutingKey { get; set; } = string.Empty;
         public bool IsMandatory { get; set; } = false;
 
         #region Constructor(s)

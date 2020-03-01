@@ -1,30 +1,17 @@
-﻿using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+﻿using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
+using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RabbitMQ.Client;
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
     [TestClass]
-    public class TestPubSub : IDisposable
+    public class TestPubSub : BaseTest
     {
-        public IConnection UsingConnection { get; }
-
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
-
-        #region Constructor(s)
-
-        public TestPubSub()
-        {
-            this.UsingConnection = new ConnectionFactory()
-            {
-                Uri = new Uri(Constants.USING_RABBITMQ)
-            }.CreateConnection();
-        }
-
-        #endregion Constructor(s)
 
         [TestInitialize]
         public void Init()
@@ -39,36 +26,31 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
             // Arrange
             var expected = Guid.NewGuid().ToString();
-            var notifier = new AutoResetEvent(false);
-
-            var channel = this.UsingConnection.CreateModel();
             var serializer = new StringSerializer();
 
-            var publisher = new SimplePublisher<string>(channel)
-            {
-                InputSerializer = serializer,
-                RoutingKey = QUEUE_NAME
-            };
-            var subscriber = new SimpleSubscriber<string>(
-                channel,
+            var publisher = this.CreateStringPublisher(
+                string.Empty,
+                QUEUE_NAME
+            );
+            var subscriber = this.CreateStringSubscriber(
                 QUEUE_NAME,
                 this.StringInputProcessor
-            )
-            {
-                InputSerializer = serializer
-            }.Subscribe();
+            ).Subscribe();
 
             // Act
-            subscriber.Processed += (sender, e) => notifier.Set();
-            publisher.Send(expected);
-            notifier.WaitOne();
+            using (subscriber)
+            {
+                var notifier = this.GetProcessedNotifier(subscriber);
+
+                using (publisher) publisher.Send(expected);
+                notifier.WaitOne();
+            }
 
             // Assert
             Assert.IsTrue(this.StringInputProcessor
                 .ProcessedInputs
                 .Contains(expected)
             );
-            subscriber.Dispose();
         }
 
         [TestMethod]
@@ -80,42 +62,45 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var input = new Random().Next(0, 1000);
             var expected = input + 1;
 
-            var channel = this.UsingConnection.CreateModel();
-            var serializer = new Int32Serializer();
-
-            var publisher = new SimplePublisher<int, int>(
-                this.UsingConnection
-            )
-            {
-                InputSerializer = serializer,
-                OutputSerializer = serializer,
-                RoutingKey = QUEUE_NAME
-            };
-            var processor = new SimpleProcessor<int, int>(
-                val => val + 1
+            var publisher = this.CreateInt32Publisher(
+                string.Empty,
+                QUEUE_NAME
             );
-            var subscriber = new SimpleSubscriber<int, int>(
-                channel,
+            var subscriber = this.CreateInt32Subscriber(
                 QUEUE_NAME,
-                processor
-            )
-            {
-                InputSerializer = serializer,
-                OutputSerializer = serializer
-            }.Subscribe();
+                new SimpleProcessor<int, int>(val => val + 1)
+            ).Subscribe();
 
             // Act
-            var actual = publisher.Send(input);
+            var actual = int.MinValue;
+            using (subscriber)
+            using (publisher)
+                actual = publisher.Send(input);
 
             // Assert
             Assert.AreEqual(expected, actual);
-            subscriber.Dispose();
         }
 
-        public void Dispose()
+        protected override IEnumerable<Exchange> DeclareExchanges()
         {
-            this.UsingConnection.Close();
-            this.UsingConnection.Dispose();
+            return new Exchange[] { };
+        }
+
+        protected override IEnumerable<Queue> DeclareQueues()
+        {
+            using (var channel = this.UsingConnection.CreateModel())
+            {
+                return new string[]
+                {
+                    nameof(Test_StringInputSubscriber_AreProcessed),
+                    nameof(Test_ResponseSubscriber_IsExpected)
+                }
+                    .Select(name => new SimpleQueue()
+                    {
+                        Name = name
+                    }.Declare(channel))
+                    .ToArray();
+            }
         }
     }
 }
