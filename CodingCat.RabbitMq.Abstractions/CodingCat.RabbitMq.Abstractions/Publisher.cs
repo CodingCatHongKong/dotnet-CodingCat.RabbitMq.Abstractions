@@ -1,11 +1,12 @@
-﻿using RabbitMQ.Client;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Publisher : IDisposable
+    public abstract class Publisher : IPublisher, IDisposable
     {
         protected IModel Channel { get; }
 
@@ -48,7 +49,8 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Publisher<TInput> : Publisher
+    public abstract class Publisher<TInput>
+        : Publisher, IPublisher<TInput>
     {
         #region Constructor(s)
 
@@ -66,7 +68,8 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Publisher<TInput, TOutput> : Publisher
+    public abstract class Publisher<TInput, TOutput>
+        : Publisher, IPublisher<TInput, TOutput>
     {
         protected IConnection Connection { get; }
 

@@ -2,6 +2,8 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using IBaseSubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
+using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
@@ -31,7 +33,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #endregion Constructor(s)
 
-        public virtual ISubscriber Subscribe()
+        public virtual IBaseSubscriber Subscribe()
         {
             var consumer = new EventingBasicConsumer(this.Channel);
             consumer.Received += this.OnReceived;
