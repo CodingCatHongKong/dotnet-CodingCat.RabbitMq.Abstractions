@@ -15,7 +15,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         public event EventHandler Subscribed;
 
-        public event EventHandler Processed;
+        public abstract event EventHandler Processed;
 
         public event EventHandler Disposing;
 
@@ -55,8 +55,10 @@ namespace CodingCat.RabbitMq.Abstractions
         {
             this.Disposing?.Invoke(this, null);
 
+            this.Channel?.BasicCancel(this.ConsumerTag);
             this.Channel?.Close();
             this.Channel?.Dispose();
+
             this.Disposed?.Invoke(this, null);
         }
     }
@@ -64,6 +66,8 @@ namespace CodingCat.RabbitMq.Abstractions
     public abstract class Subscriber<TInput> : Subscriber
     {
         protected IProcessor<TInput> Processor { get; }
+
+        public override event EventHandler Processed;
 
         #region Constructor(s)
 
@@ -87,12 +91,16 @@ namespace CodingCat.RabbitMq.Abstractions
         {
             var input = this.FromBytes(args.Body);
             this.Processor.HandleInput(input);
+
+            this.Processed?.Invoke(this, null);
         }
     }
 
     public abstract class Subscriber<TInput, TOutput> : Subscriber
     {
         protected IProcessor<TInput, TOutput> Processor { get; }
+
+        public override event EventHandler Processed;
 
         #region Constructor(s)
 
@@ -128,6 +136,8 @@ namespace CodingCat.RabbitMq.Abstractions
                     body: this.ToBytes(output)
                 );
             }
+
+            this.Processed?.Invoke(this, null);
         }
     }
 }
