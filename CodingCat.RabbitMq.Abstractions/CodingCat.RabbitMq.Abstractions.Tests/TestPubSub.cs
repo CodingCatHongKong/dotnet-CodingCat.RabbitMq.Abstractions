@@ -1,48 +1,19 @@
-﻿using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+﻿using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
+using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
     [TestClass]
-    public class TestPubSub : IDisposable
+    public class TestPubSub : BaseTest
     {
-        public IConnection UsingConnection { get; }
-        public List<Queue> Queues { get; } = new List<Queue>();
-
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
-
-        #region Constructor(s)
-
-        public TestPubSub()
-        {
-            this.UsingConnection = new ConnectionFactory()
-            {
-                Uri = new Uri(Constants.USING_RABBITMQ)
-            }.CreateConnection();
-
-            using (var channel = this.UsingConnection.CreateModel())
-            {
-                foreach (var queueName in new string[]
-                {
-                    nameof(Test_StringInputSubscriber_AreProcessed),
-                    nameof(Test_ResponseSubscriber_IsExpected)
-                })
-                {
-                    this.Queues.Add(new SimpleQueue()
-                    {
-                        Name = queueName
-                    }.Declare(channel));
-                }
-                channel.Close();
-            }
-        }
-
-        #endregion Constructor(s)
 
         [TestInitialize]
         public void Init()
@@ -130,16 +101,26 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             subscriber.Dispose();
         }
 
-        public void Dispose()
+        protected override IEnumerable<Exchange> DeclareExchanges()
+        {
+            return new Exchange[] { };
+        }
+
+        protected override IEnumerable<Queue> DeclareQueues()
         {
             using(var channel = this.UsingConnection.CreateModel())
             {
-                foreach (var queue in this.Queues)
-                    channel.QueueDelete(queue.Name, false, false);
-                channel.Close();
+                return new string[]
+                {
+                    nameof(Test_StringInputSubscriber_AreProcessed),
+                    nameof(Test_ResponseSubscriber_IsExpected)
+                }
+                    .Select(name => new SimpleQueue()
+                    {
+                        Name = name
+                    }.Declare(channel))
+                    .ToArray();
             }
-            this.UsingConnection.Close();
-            this.UsingConnection.Dispose();
         }
     }
 }
