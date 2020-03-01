@@ -1,4 +1,4 @@
-﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.Mq.Abstractions.Interfaces;
 using RabbitMQ.Client;
 using System;
 using System.Threading;

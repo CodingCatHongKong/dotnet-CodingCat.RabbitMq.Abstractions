@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Abstracts\BaseTest.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Impls\ConnectConfiguration.cs" />
     <Compile Include="Impls\SimpleExchange.cs" />
     <Compile Include="Impls\SimpleProcessor.cs" />
     <Compile Include="Impls\SimplePublisher.cs" />

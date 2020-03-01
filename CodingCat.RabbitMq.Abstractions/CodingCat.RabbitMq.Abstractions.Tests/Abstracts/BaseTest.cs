@@ -27,7 +27,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             this.UsingConnection = new ConnectionFactory()
             {
                 Uri = new Uri(Constants.USING_RABBITMQ)
-            }.CreateConnection();
+            }.CreateConnection(Constants.ConnectConfiguration);
 
             this.DeclaredExchanges.AddRange(this.DeclareExchanges());
             this.DeclaredQueues.AddRange(this.DeclareQueues());
