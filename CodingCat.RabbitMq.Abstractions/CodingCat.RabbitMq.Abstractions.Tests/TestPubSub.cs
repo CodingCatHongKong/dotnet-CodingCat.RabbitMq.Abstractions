@@ -3,6 +3,7 @@ using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
@@ -11,6 +12,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
     public class TestPubSub : IDisposable
     {
         public IConnection UsingConnection { get; }
+        public List<Queue> Queues { get; } = new List<Queue>();
 
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
 
@@ -22,6 +24,22 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             {
                 Uri = new Uri(Constants.USING_RABBITMQ)
             }.CreateConnection();
+
+            using (var channel = this.UsingConnection.CreateModel())
+            {
+                foreach (var queueName in new string[]
+                {
+                    nameof(Test_StringInputSubscriber_AreProcessed),
+                    nameof(Test_ResponseSubscriber_IsExpected)
+                })
+                {
+                    this.Queues.Add(new SimpleQueue()
+                    {
+                        Name = queueName
+                    }.Declare(channel));
+                }
+                channel.Close();
+            }
         }
 
         #endregion Constructor(s)
@@ -114,6 +132,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
         public void Dispose()
         {
+            using(var channel = this.UsingConnection.CreateModel())
+            {
+                foreach (var queue in this.Queues)
+                    channel.QueueDelete(queue.Name, false, false);
+                channel.Close();
+            }
             this.UsingConnection.Close();
             this.UsingConnection.Dispose();
         }
