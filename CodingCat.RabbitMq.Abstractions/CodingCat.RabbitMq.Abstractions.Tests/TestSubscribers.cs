@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+﻿using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
+using System;
+using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
@@ -15,6 +14,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
 
         #region Constructor(s)
+
         public TestSubscribers()
         {
             this.UsingConnection = new ConnectionFactory()
@@ -22,7 +22,8 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                 Uri = new Uri(Constants.USING_RABBITMQ)
             }.CreateConnection();
         }
-        #endregion
+
+        #endregion Constructor(s)
 
         [TestInitialize]
         public void Init()
