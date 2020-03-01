@@ -13,6 +13,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
     public class TestSubscribers : IDisposable
     {
         public IConnection UsingConnection { get; }
+
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
 
         #region Constructor(s)
@@ -45,6 +46,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var channel = this.UsingConnection.CreateModel();
             var serializer = new StringSerializer();
 
+            var publisher = new SimplePublisher<string>(this.UsingConnection)
+            {
+                InputSerializer = serializer,
+                RoutingKey = QUEUE_NAME
+            };
             var subscriber = new SimpleSubscriber<string>(
                 channel,
                 QUEUE_NAME,
@@ -56,15 +62,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
             // Act
             subscriber.Processed += (sender, e) => notifier.Set();
-
-            using (var publishChannel = this.UsingConnection.CreateModel())
-                publishChannel.BasicPublish(
-                    "",
-                    QUEUE_NAME,
-                    false,
-                    null,
-                    serializer.ToBytes(expected)
-                );
+            publisher.Send(expected);
 
             notifier.WaitOne();
 
