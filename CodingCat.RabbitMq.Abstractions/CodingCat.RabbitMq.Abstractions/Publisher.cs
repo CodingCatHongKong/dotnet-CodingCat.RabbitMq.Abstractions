@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Publisher : IPublisher, IDisposable
+    public abstract class Publisher : IPublisher
     {
         protected IModel Channel { get; }
 

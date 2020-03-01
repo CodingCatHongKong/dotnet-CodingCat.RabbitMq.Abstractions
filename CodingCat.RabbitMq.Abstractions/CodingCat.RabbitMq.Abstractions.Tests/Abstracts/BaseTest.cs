@@ -1,22 +1,24 @@
 ﻿using CodingCat.Mq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
 {
     public abstract class BaseTest : IDisposable
     {
         public IConnection UsingConnection { get; }
-        public List<Exchange> DeclaredExchanges { get; } = new List<Exchange>();
-        public List<Queue> DeclaredQueues { get; } = new List<Queue>();
+        public List<IExchange> DeclaredExchanges { get; } = new List<IExchange>();
+        public List<IQueue> DeclaredQueues { get; } = new List<IQueue>();
 
-        protected abstract IEnumerable<Exchange> DeclareExchanges();
+        protected abstract IEnumerable<IExchange> DeclareExchanges();
 
-        protected abstract IEnumerable<Queue> DeclareQueues();
+        protected abstract IEnumerable<IQueue> DeclareQueues();
 
         #region Constructor(s)
 
@@ -33,7 +35,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
 
         #endregion Constructor(s)
 
-        public Publisher<string> CreateStringPublisher(
+        public IPublisher<string> CreateStringPublisher(
             string exchangeName,
             string routingKey = ""
         )
@@ -46,7 +48,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             };
         }
 
-        public Publisher<int, int> CreateInt32Publisher(
+        public IPublisher<int, int> CreateInt32Publisher(
             string exchangeName,
             string routingKey = ""
         )
@@ -60,7 +62,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             };
         }
 
-        public Subscriber CreateStringSubscriber(
+        public ISubscriber CreateStringSubscriber(
             string queueName,
             IProcessor<string> processor
         )
@@ -75,7 +77,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             };
         }
 
-        public Subscriber CreateInt32Subscriber(
+        public ISubscriber CreateInt32Subscriber(
             string queueName,
             IProcessor<int, int> processor
         )
@@ -94,11 +96,13 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
         public EventWaitHandle GetProcessedNotifier(ISubscriber subscriber)
         {
             var notifier = new AutoResetEvent(false);
-            subscriber.Processed += (sender, e) => notifier.Set();
+            subscriber
+                .Subscribe()
+                .Processed += (sender, e) => notifier.Set();
             return notifier;
         }
 
-        public Queue DeclareDynamicQueue(Exchange exchange)
+        public IQueue DeclareDynamicQueue(IExchange exchange)
         {
             var channel = this.UsingConnection.CreateModel();
             var queue = new SimpleQueue()

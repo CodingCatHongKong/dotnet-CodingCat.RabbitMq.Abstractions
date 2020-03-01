@@ -1,4 +1,5 @@
-﻿using IBaseSubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
+﻿using System;
+using IBaseSubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions.Interfaces
 {

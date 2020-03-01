@@ -1,4 +1,5 @@
-﻿using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -35,7 +36,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var subscriber = this.CreateStringSubscriber(
                 QUEUE_NAME,
                 this.StringInputProcessor
-            ).Subscribe();
+            );
 
             // Act
             using (subscriber)
@@ -81,12 +82,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        protected override IEnumerable<Exchange> DeclareExchanges()
+        protected override IEnumerable<IExchange> DeclareExchanges()
         {
             return new Exchange[] { };
         }
 
-        protected override IEnumerable<Queue> DeclareQueues()
+        protected override IEnumerable<IQueue> DeclareQueues()
         {
             using (var channel = this.UsingConnection.CreateModel())
             {
