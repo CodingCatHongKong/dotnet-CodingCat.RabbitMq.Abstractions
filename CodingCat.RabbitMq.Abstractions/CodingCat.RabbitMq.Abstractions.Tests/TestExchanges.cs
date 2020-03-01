@@ -15,15 +15,13 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
     public class TestExchanges : BaseTest
     {
         public ISerializer<string> StringSerializer { get; } = new StringSerializer();
-        public ISerializer<int> Int32Serializer { get; } = new Int32Serializer();
-
         public SimpleProcessor<string> StringProcessor { get; private set; }
-        public SimpleProcessor<int, int> IntProcessor { get; private set; }
 
         [TestInitialize]
         public void Init()
         {
             var directExchange = this.GetDeclaredExchange(ExchangeTypes.Direct);
+
             using (var channel = this.UsingConnection.CreateModel())
             {
                 this.GetDeclaredQueue(nameof(Test_Direct_Deliveried))
@@ -31,9 +29,6 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             }
 
             this.StringProcessor = new SimpleProcessor<string>();
-            this.IntProcessor = new SimpleProcessor<int, int>(
-                input => input += 1
-            );
         }
 
         [TestMethod]
@@ -75,6 +70,70 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
             publisher.Dispose();
             subscriber.Dispose();
+        }
+
+        [TestMethod]
+        public void Test_Fanout_Deliveried()
+        {
+            // Arrange
+            var queues = new[] {
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString()
+            }
+                .Select(name =>
+                    new SimpleQueue()
+                    {
+                        Name = name,
+                        BindingKey = Guid.NewGuid().ToString(),
+                        IsDurable = false
+                    }
+                )
+                .ToArray();
+            var exchange = this.GetDeclaredExchange(ExchangeTypes.Fanout);
+
+            using (var channel = this.UsingConnection.CreateModel())
+                foreach (var queue in queues)
+                    queue
+                        .Declare(channel)
+                        .BindExchange(channel, exchange.Name);
+            this.DeclaredQueues.AddRange(queues);
+
+            var expected = Guid.NewGuid().ToString();
+
+            var publisher = new SimplePublisher<string>(
+                this.UsingConnection.CreateModel()
+            )
+            {
+                ExchangeName = exchange.Name,
+                InputSerializer = this.StringSerializer
+            };
+            var subscribers = queues.Select(queue =>
+                new SimpleSubscriber<string>(
+                    this.UsingConnection.CreateModel(),
+                    queue.Name,
+                    this.StringProcessor
+                )
+                {
+                    InputSerializer = this.StringSerializer
+                }.Subscribe()
+            ).ToArray();
+
+            // Act
+            publisher.Send(expected);
+
+            while (this.StringProcessor.ProcessedInputs.Count < 2)
+                Thread.Sleep(100);
+
+            // Assert
+            Assert.IsTrue(this.StringProcessor
+                .ProcessedInputs
+                .Contains(expected)
+            );
+            Assert.AreEqual(2, this.StringProcessor.ProcessedInputs.Count());
+
+            publisher.Dispose();
+            foreach (var subscriber in subscribers)
+                subscriber.Dispose();
         }
 
         public EventWaitHandle GetProcessedNotifier(ISubscriber subscriber)
