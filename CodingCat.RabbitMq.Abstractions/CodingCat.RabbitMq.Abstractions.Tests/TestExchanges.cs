@@ -1,4 +1,5 @@
-﻿using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using CodingCat.Serializers.Interfaces;
@@ -35,7 +36,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var subscriber = this.CreateStringSubscriber(
                 Constants.DirectQueue.Name,
                 this.StringProcessor
-            ).Subscribe();
+            );
 
             // Act
             using (subscriber)
@@ -97,7 +98,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                 subscriber.Dispose();
         }
 
-        protected override IEnumerable<Exchange> DeclareExchanges()
+        protected override IEnumerable<IExchange> DeclareExchanges()
         {
             using (var channel = this.UsingConnection.CreateModel())
             {
@@ -109,7 +110,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             }
         }
 
-        protected override IEnumerable<Queue> DeclareQueues()
+        protected override IEnumerable<IQueue> DeclareQueues()
         {
             using (var channel = this.UsingConnection.CreateModel())
             {

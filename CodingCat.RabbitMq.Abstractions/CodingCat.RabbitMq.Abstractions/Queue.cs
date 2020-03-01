@@ -1,9 +1,10 @@
-﻿using RabbitMQ.Client;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+using RabbitMQ.Client;
 using System.Collections.Generic;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Queue
+    public abstract class Queue : IQueue
     {
         public string Name { get; set; } = string.Empty;
         public string BindingKey { get; set; } = string.Empty;
@@ -13,7 +14,7 @@ namespace CodingCat.RabbitMq.Abstractions
         public bool IsAutoDelete { get; set; } = false;
         public IDictionary<string, object> Arguments { get; set; }
 
-        public virtual Queue Declare(IModel channel)
+        public virtual IQueue Declare(IModel channel)
         {
             channel.QueueDeclare(
                 queue: this.Name,
@@ -25,7 +26,7 @@ namespace CodingCat.RabbitMq.Abstractions
             return this;
         }
 
-        public virtual Queue BindExchange(
+        public virtual IQueue BindExchange(
             IModel channel,
             string exchangeName,
             IDictionary<string, object> arguments = null
