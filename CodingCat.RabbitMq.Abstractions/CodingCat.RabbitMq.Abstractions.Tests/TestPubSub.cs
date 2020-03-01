@@ -2,22 +2,21 @@
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
     [TestClass]
-    public class TestSubscribers : IDisposable
+    public class TestPubSub : IDisposable
     {
         public IConnection UsingConnection { get; }
+
         public SimpleProcessor<string> StringInputProcessor { get; private set; }
 
         #region Constructor(s)
 
-        public TestSubscribers()
+        public TestPubSub()
         {
             this.UsingConnection = new ConnectionFactory()
             {
@@ -45,6 +44,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var channel = this.UsingConnection.CreateModel();
             var serializer = new StringSerializer();
 
+            var publisher = new SimplePublisher<string>(channel)
+            {
+                InputSerializer = serializer,
+                RoutingKey = QUEUE_NAME
+            };
             var subscriber = new SimpleSubscriber<string>(
                 channel,
                 QUEUE_NAME,
@@ -56,16 +60,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
             // Act
             subscriber.Processed += (sender, e) => notifier.Set();
-
-            using (var publishChannel = this.UsingConnection.CreateModel())
-                publishChannel.BasicPublish(
-                    "",
-                    QUEUE_NAME,
-                    false,
-                    null,
-                    serializer.ToBytes(expected)
-                );
-
+            publisher.Send(expected);
             notifier.WaitOne();
 
             // Assert
@@ -85,11 +80,17 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var input = new Random().Next(0, 1000);
             var expected = input + 1;
 
-            var notifier = new ManualResetEvent(false);
-
             var channel = this.UsingConnection.CreateModel();
             var serializer = new Int32Serializer();
 
+            var publisher = new SimplePublisher<int, int>(
+                this.UsingConnection
+            )
+            {
+                InputSerializer = serializer,
+                OutputSerializer = serializer,
+                RoutingKey = QUEUE_NAME
+            };
             var processor = new SimpleProcessor<int, int>(
                 val => val + 1
             );
@@ -104,43 +105,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             }.Subscribe();
 
             // Act
-            var actual = int.MinValue;
-
-            var replyQueue = channel.QueueDeclare(
-                "", false, false, true, null
-            ).QueueName;
-            Task.Run(() =>
-            {
-                var usingChannel = this.UsingConnection.CreateModel();
-                var consumerTag = Guid.NewGuid().ToString();
-                var consumer = new EventingBasicConsumer(usingChannel);
-                consumer.Received += (sender, e) =>
-                {
-                    actual = serializer.FromBytes(e.Body);
-                    notifier.Set();
-                };
-
-                usingChannel.BasicConsume(
-                    replyQueue, true, consumerTag, consumer
-                );
-                notifier.WaitOne();
-                usingChannel.BasicCancel(consumerTag);
-                usingChannel.Close();
-                usingChannel.Dispose();
-            });
-
-            var properties = channel.CreateBasicProperties();
-            properties.ReplyTo = replyQueue;
-            using (var publishChannel = this.UsingConnection.CreateModel())
-                publishChannel.BasicPublish(
-                    "",
-                    QUEUE_NAME,
-                    false,
-                    properties,
-                    serializer.ToBytes(input)
-                );
-
-            notifier.WaitOne();
+            var actual = publisher.Send(input);
 
             // Assert
             Assert.AreEqual(expected, actual);
