@@ -12,4 +12,17 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
             this.ProcessedInputs.Add(input);
         }
     }
+
+    public class SimpleProcessor<TInput, TOutput>
+        : DelegatedProcessor<TInput, TOutput>
+    {
+        #region Constructor(s)
+
+        public SimpleProcessor(ProcessDelegate delegatedProcess)
+            : base(delegatedProcess)
+        {
+        }
+
+        #endregion Constructor(s)
+    }
 }

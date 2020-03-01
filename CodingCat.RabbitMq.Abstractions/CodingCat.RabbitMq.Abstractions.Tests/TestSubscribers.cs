@@ -2,8 +2,10 @@
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
@@ -71,6 +73,77 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                 .ProcessedInputs
                 .Contains(expected)
             );
+            subscriber.Dispose();
+        }
+
+        [TestMethod]
+        public void Test_ResponseSubscriber_IsExpected()
+        {
+            const string QUEUE_NAME = nameof(Test_ResponseSubscriber_IsExpected);
+
+            // Arrange
+            var input = new Random().Next(0, 1000);
+            var expected = input + 1;
+
+            var notifier = new ManualResetEvent(false);
+
+            var channel = this.UsingConnection.CreateModel();
+            var serializer = new Int32Serializer();
+
+            var processor = new SimpleProcessor<int, int>(
+                val => val + 1
+            );
+            var subscriber = new SimpleSubscriber<int, int>(
+                channel,
+                QUEUE_NAME,
+                processor
+            )
+            {
+                InputSerializer = serializer,
+                OutputSerializer = serializer
+            }.Subscribe();
+
+            // Act
+            var actual = int.MinValue;
+
+            var replyQueue = channel.QueueDeclare(
+                "", false, false, true, null
+            ).QueueName;
+            Task.Run(() =>
+            {
+                var usingChannel = this.UsingConnection.CreateModel();
+                var consumerTag = Guid.NewGuid().ToString();
+                var consumer = new EventingBasicConsumer(usingChannel);
+                consumer.Received += (sender, e) =>
+                {
+                    actual = serializer.FromBytes(e.Body);
+                    notifier.Set();
+                };
+
+                usingChannel.BasicConsume(
+                    replyQueue, true, consumerTag, consumer
+                );
+                notifier.WaitOne();
+                usingChannel.BasicCancel(consumerTag);
+                usingChannel.Close();
+                usingChannel.Dispose();
+            });
+
+            var properties = channel.CreateBasicProperties();
+            properties.ReplyTo = replyQueue;
+            using (var publishChannel = this.UsingConnection.CreateModel())
+                publishChannel.BasicPublish(
+                    "",
+                    QUEUE_NAME,
+                    false,
+                    properties,
+                    serializer.ToBytes(input)
+                );
+
+            notifier.WaitOne();
+
+            // Assert
+            Assert.AreEqual(expected, actual);
             subscriber.Dispose();
         }
 
