@@ -9,7 +9,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 
         #region Constructor(s)
 
-        public SimplePublisher(IConnection connection) : base(connection)
+        public SimplePublisher(IModel channel) : base(channel)
         {
         }
 

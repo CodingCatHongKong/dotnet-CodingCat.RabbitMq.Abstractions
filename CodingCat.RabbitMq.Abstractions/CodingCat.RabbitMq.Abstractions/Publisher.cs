@@ -7,9 +7,7 @@ namespace CodingCat.RabbitMq.Abstractions
 {
     public abstract class Publisher : IDisposable
     {
-        private IModel usingChannel { get; }
-
-        protected IConnection Connection { get; }
+        protected IModel Channel { get; }
 
         public string ExchangeName { get; set; } = string.Empty;
         public string RoutingKey { get; set; } = null;
@@ -17,18 +15,16 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #region Constructor(s)
 
-        public Publisher(IConnection connection)
+        public Publisher(IModel channel)
         {
-            this.Connection = connection;
-
-            this.usingChannel = this.Connection.CreateModel();
+            this.Channel = channel;
         }
 
         #endregion Constructor(s)
 
         protected virtual IBasicProperties GetBasicProperties()
         {
-            return this.usingChannel.CreateBasicProperties();
+            return this.Channel.CreateBasicProperties();
         }
 
         protected virtual void Send(
@@ -36,7 +32,7 @@ namespace CodingCat.RabbitMq.Abstractions
             IBasicProperties basicProperties
         )
         {
-            this.usingChannel.BasicPublish(
+            this.Channel.BasicPublish(
                 exchange: this.ExchangeName,
                 routingKey: this.RoutingKey,
                 mandatory: this.IsMandatory,
@@ -47,8 +43,8 @@ namespace CodingCat.RabbitMq.Abstractions
 
         public void Dispose()
         {
-            this.usingChannel?.Close();
-            this.usingChannel?.Dispose();
+            this.Channel?.Close();
+            this.Channel?.Dispose();
         }
     }
 
@@ -56,7 +52,7 @@ namespace CodingCat.RabbitMq.Abstractions
     {
         #region Constructor(s)
 
-        public Publisher(IConnection connection) : base(connection)
+        public Publisher(IModel channel) : base(channel)
         {
         }
 
@@ -72,10 +68,14 @@ namespace CodingCat.RabbitMq.Abstractions
 
     public abstract class Publisher<TInput, TOutput> : Publisher
     {
+        protected IConnection Connection { get; }
+
         #region Constructor(s)
 
-        public Publisher(IConnection connection) : base(connection)
+        public Publisher(IConnection connection)
+            : base(connection.CreateModel())
         {
+            this.Connection = connection;
         }
 
         #endregion Constructor(s)

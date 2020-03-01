@@ -46,7 +46,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var channel = this.UsingConnection.CreateModel();
             var serializer = new StringSerializer();
 
-            var publisher = new SimplePublisher<string>(this.UsingConnection)
+            var publisher = new SimplePublisher<string>(channel)
             {
                 InputSerializer = serializer,
                 RoutingKey = QUEUE_NAME
