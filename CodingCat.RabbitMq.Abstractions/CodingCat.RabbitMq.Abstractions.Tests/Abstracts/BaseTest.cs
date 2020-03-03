@@ -17,6 +17,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
         public List<IQueue> DeclaredQueues { get; } = new List<IQueue>();
 
         protected abstract IEnumerable<IExchange> DeclareExchanges();
+
         protected abstract IEnumerable<IQueue> DeclareQueues();
 
         #region Constructor(s)
@@ -67,11 +68,10 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
         )
         {
             return new SimpleSubscriberFactory<string>(
-                this.UsingConnection,
                 queueName,
                 processor,
                 new StringSerializer()
-            ).GetSubscriber();
+            ).GetSubscribed(this.UsingConnection.CreateModel());
         }
 
         public ISubscriber CreateInt32Subscriber(
@@ -80,12 +80,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
         )
         {
             return new SimpleSubscriberFactory<int, int>(
-                this.UsingConnection,
                 queueName,
                 processor,
                 new Int32Serializer(),
                 new Int32Serializer()
-            ).GetSubscriber();
+            ).GetSubscribed(this.UsingConnection.CreateModel());
         }
 
         public EventWaitHandle GetProcessedNotifier(ISubscriber subscriber)

@@ -8,7 +8,6 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
     public class SimpleSubscriberFactory<TInput> : ISubscriberFactory
     {
-        private IConnection connection { get; }
         private string queueName { get; }
 
         private IProcessor<TInput> processor { get; }
@@ -17,13 +16,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
         #region Constructor(s)
 
         public SimpleSubscriberFactory(
-            IConnection connection,
             string queueName,
             IProcessor<TInput> processor,
             ISerializer<TInput> inputSerializer
         )
         {
-            this.connection = connection;
             this.queueName = queueName;
 
             this.processor = processor;
@@ -32,10 +29,10 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 
         #endregion Constructor(s)
 
-        public ISubscriber GetSubscriber()
+        public ISubscriber GetSubscribed(IModel channel)
         {
             return new SimpleSubscriber<TInput>(
-                this.connection.CreateModel(),
+                channel,
                 this.queueName,
                 this.processor
             )
@@ -49,7 +46,6 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
     public class SimpleSubscriberFactory<TInput, TOutput>
         : ISubscriberFactory
     {
-        private IConnection connection { get; }
         private string queueName { get; }
 
         private IProcessor<TInput, TOutput> processor { get; }
@@ -59,14 +55,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
         #region Constructor(s)
 
         public SimpleSubscriberFactory(
-            IConnection connection,
             string queueName,
             IProcessor<TInput, TOutput> processor,
             ISerializer<TInput> inputSerializer,
             ISerializer<TOutput> outputSerializer
         )
         {
-            this.connection = connection;
             this.queueName = queueName;
 
             this.processor = processor;
@@ -76,10 +70,10 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 
         #endregion Constructor(s)
 
-        public ISubscriber GetSubscriber()
+        public ISubscriber GetSubscribed(IModel channel)
         {
             return new SimpleSubscriber<TInput, TOutput>(
-                this.connection.CreateModel(),
+                channel,
                 this.queueName,
                 this.processor
             )

@@ -1,7 +1,9 @@
-﻿namespace CodingCat.RabbitMq.Abstractions.Interfaces
+﻿using RabbitMQ.Client;
+
+namespace CodingCat.RabbitMq.Abstractions.Interfaces
 {
     public interface ISubscriberFactory
     {
-        ISubscriber GetSubscriber();
+        ISubscriber GetSubscribed(IModel channel);
     }
 }
