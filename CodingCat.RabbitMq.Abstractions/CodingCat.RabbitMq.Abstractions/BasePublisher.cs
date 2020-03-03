@@ -73,6 +73,11 @@ namespace CodingCat.RabbitMq.Abstractions
     {
         protected IConnection Connection { get; }
 
+        public TOutput DefaultOutput { get; set; } = default(TOutput);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(0);
+
+        public bool IsTimeoutEnabled => this.Timeout.TotalMilliseconds > 0;
+
         #region Constructor(s)
 
         public BasePublisher(IConnection connection)
@@ -112,8 +117,8 @@ namespace CodingCat.RabbitMq.Abstractions
             string replyTo
         )
         {
-            var output = default(TOutput);
             var notifier = new AutoResetEvent(false);
+            var output = this.DefaultOutput;
 
             var consumerTag = Guid.NewGuid().ToString();
             var consumer = new EventingBasicConsumer(channel);
@@ -130,10 +135,20 @@ namespace CodingCat.RabbitMq.Abstractions
                 consumer: consumer
             );
 
-            notifier.WaitOne();
+            this.WaitFor(notifier);
             channel.BasicCancel(consumerTag);
 
             return output;
+        }
+
+        protected void WaitFor(EventWaitHandle notifier)
+        {
+            if (this.IsTimeoutEnabled)
+                using (notifier)
+                    notifier.WaitOne(this.Timeout);
+            else
+                using (notifier)
+                    notifier.WaitOne();
         }
     }
 }

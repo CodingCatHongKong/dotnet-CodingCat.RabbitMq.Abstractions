@@ -1,12 +1,12 @@
-﻿using System;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
+using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CodingCat.RabbitMq.Abstractions.Interfaces;
-using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
-using CodingCat.RabbitMq.Abstractions.Tests.Impls;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
@@ -22,7 +22,8 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             // Arrange
             var publisher = this.CreateInt32Publisher(
                 string.Empty,
-                QUEUE
+                QUEUE,
+                TIMEOUT_SECONDS / 2
             );
             var subscriber = this.CreateInt32Subscriber(
                 QUEUE,
