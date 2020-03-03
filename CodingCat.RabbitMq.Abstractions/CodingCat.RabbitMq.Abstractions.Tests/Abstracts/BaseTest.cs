@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
+using ISubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
 {
@@ -67,14 +67,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             IProcessor<string> processor
         )
         {
-            return new SimpleSubscriber<string>(
-                this.UsingConnection.CreateModel(),
+            return new SimpleSubscriberFactory<string>(
                 queueName,
-                processor
-            )
-            {
-                InputSerializer = new StringSerializer()
-            };
+                processor,
+                new StringSerializer()
+            ).GetSubscribed(this.UsingConnection.CreateModel());
         }
 
         public ISubscriber CreateInt32Subscriber(
@@ -82,15 +79,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
             IProcessor<int, int> processor
         )
         {
-            return new SimpleSubscriber<int, int>(
-                this.UsingConnection.CreateModel(),
+            return new SimpleSubscriberFactory<int, int>(
                 queueName,
-                processor
-            )
-            {
-                InputSerializer = new Int32Serializer(),
-                OutputSerializer = new Int32Serializer()
-            };
+                processor,
+                new Int32Serializer(),
+                new Int32Serializer()
+            ).GetSubscribed(this.UsingConnection.CreateModel());
         }
 
         public EventWaitHandle GetProcessedNotifier(ISubscriber subscriber)

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Queue : IQueue
+    public abstract class BaseQueue : IQueue
     {
         public string Name { get; set; } = string.Empty;
         public string BindingKey { get; set; } = string.Empty;

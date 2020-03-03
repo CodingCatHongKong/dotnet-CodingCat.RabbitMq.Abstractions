@@ -15,21 +15,21 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             RetryUpTo = 3
         };
 
-        public static Exchange DirectExchange = new SimpleExchange()
+        public static BaseExchange DirectExchange = new SimpleExchange()
         {
             Name = $"{nameof(DirectExchange)}.{ExchangeTypes.Direct}",
             ExchangeType = ExchangeTypes.Direct,
             IsDurable = false
         };
 
-        public static Exchange FanoutExchange = new SimpleExchange()
+        public static BaseExchange FanoutExchange = new SimpleExchange()
         {
             Name = $"{nameof(FanoutExchange)}.{ExchangeTypes.Fanout}",
             ExchangeType = ExchangeTypes.Fanout,
             IsDurable = false
         };
 
-        public static Queue DirectQueue = new SimpleQueue()
+        public static BaseQueue DirectQueue = new SimpleQueue()
         {
             Name = nameof(DirectQueue),
             BindingKey = nameof(DirectQueue),

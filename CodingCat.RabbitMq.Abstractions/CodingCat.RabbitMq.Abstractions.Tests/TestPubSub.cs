@@ -84,7 +84,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
         protected override IEnumerable<IExchange> DeclareExchanges()
         {
-            return new Exchange[] { };
+            return new BaseExchange[] { };
         }
 
         protected override IEnumerable<IQueue> DeclareQueues()
