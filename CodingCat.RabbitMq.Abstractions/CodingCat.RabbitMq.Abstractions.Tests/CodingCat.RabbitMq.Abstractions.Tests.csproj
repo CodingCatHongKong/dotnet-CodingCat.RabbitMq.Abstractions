@@ -79,10 +79,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\dotnet-CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions.csproj">
-      <Project>{98df9ebc-68c2-4157-afa8-99f826f08626}</Project>
-      <Name>CodingCat.Mq.Abstractions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CodingCat.RabbitMq.Abstractions\CodingCat.RabbitMq.Abstractions.csproj">
       <Project>{120a60ea-651d-497d-863f-25fce84ab62e}</Project>
       <Name>CodingCat.RabbitMq.Abstractions</Name>
