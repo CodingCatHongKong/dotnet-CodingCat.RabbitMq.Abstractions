@@ -1,5 +1,4 @@
-﻿using CodingCat.Mq.Abstractions.Interfaces;
-using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using RabbitMQ.Client;
