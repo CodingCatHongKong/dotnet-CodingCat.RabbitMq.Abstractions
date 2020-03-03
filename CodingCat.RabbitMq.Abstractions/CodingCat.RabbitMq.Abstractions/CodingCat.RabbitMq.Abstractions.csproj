@@ -5,12 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CodingCat.Mq.Abstractions" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.2" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\dotnet-CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions\CodingCat.Mq.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

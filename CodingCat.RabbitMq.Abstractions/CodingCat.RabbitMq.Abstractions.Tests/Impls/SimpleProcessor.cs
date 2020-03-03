@@ -1,5 +1,4 @@
-﻿using CodingCat.Mq.Abstractions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {

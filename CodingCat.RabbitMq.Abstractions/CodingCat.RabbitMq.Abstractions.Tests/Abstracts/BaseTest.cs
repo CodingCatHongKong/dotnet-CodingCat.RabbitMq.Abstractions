@@ -1,5 +1,4 @@
-﻿using CodingCat.Mq.Abstractions.Interfaces;
-using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using RabbitMQ.Client;
@@ -50,7 +49,8 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
 
         public IPublisher<int, int> CreateInt32Publisher(
             string exchangeName,
-            string routingKey = ""
+            string routingKey = "",
+            int timeoutSeconds = 0
         )
         {
             return new SimplePublisher<int, int>(this.UsingConnection)
@@ -58,7 +58,8 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
                 ExchangeName = exchangeName,
                 RoutingKey = routingKey,
                 InputSerializer = new Int32Serializer(),
-                OutputSerializer = new Int32Serializer()
+                OutputSerializer = new Int32Serializer(),
+                Timeout = TimeSpan.FromSeconds(timeoutSeconds)
             };
         }
 

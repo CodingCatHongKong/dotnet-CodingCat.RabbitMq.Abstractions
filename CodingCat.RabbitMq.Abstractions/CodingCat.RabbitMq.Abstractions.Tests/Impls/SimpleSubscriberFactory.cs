@@ -1,5 +1,4 @@
-﻿using CodingCat.Mq.Abstractions.Interfaces;
-using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.Serializers.Interfaces;
 using RabbitMQ.Client;
 using ISubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
