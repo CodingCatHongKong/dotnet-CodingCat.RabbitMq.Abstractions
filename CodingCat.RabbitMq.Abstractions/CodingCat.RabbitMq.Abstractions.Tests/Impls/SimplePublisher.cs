@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
-    public class SimplePublisher<TInput> : Publisher<TInput>
+    public class SimplePublisher<TInput> : BasePublisher<TInput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
 
@@ -22,7 +22,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
     }
 
     public class SimplePublisher<TInput, TOutput>
-        : Publisher<TInput, TOutput>
+        : BasePublisher<TInput, TOutput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
         public ISerializer<TOutput> OutputSerializer { get; set; }

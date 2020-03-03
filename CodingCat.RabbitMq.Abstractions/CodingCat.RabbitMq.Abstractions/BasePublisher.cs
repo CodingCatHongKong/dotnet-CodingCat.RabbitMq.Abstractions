@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Publisher : IPublisher
+    public abstract class BasePublisher : IPublisher
     {
         protected IModel Channel { get; }
 
@@ -16,7 +16,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #region Constructor(s)
 
-        public Publisher(IModel channel)
+        public BasePublisher(IModel channel)
         {
             this.Channel = channel;
         }
@@ -49,12 +49,12 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Publisher<TInput>
-        : Publisher, IPublisher<TInput>
+    public abstract class BasePublisher<TInput>
+        : BasePublisher, IPublisher<TInput>
     {
         #region Constructor(s)
 
-        public Publisher(IModel channel) : base(channel)
+        public BasePublisher(IModel channel) : base(channel)
         {
         }
 
@@ -68,14 +68,14 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Publisher<TInput, TOutput>
-        : Publisher, IPublisher<TInput, TOutput>
+    public abstract class BasePublisher<TInput, TOutput>
+        : BasePublisher, IPublisher<TInput, TOutput>
     {
         protected IConnection Connection { get; }
 
         #region Constructor(s)
 
-        public Publisher(IConnection connection)
+        public BasePublisher(IConnection connection)
             : base(connection.CreateModel())
         {
             this.Connection = connection;

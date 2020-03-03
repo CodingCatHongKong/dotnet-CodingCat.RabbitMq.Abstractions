@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
-    public class SimpleSubscriber<TInput> : Subscriber<TInput>
+    public class SimpleSubscriber<TInput> : BaseSubscriber<TInput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
 
@@ -25,7 +25,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
     }
 
     public class SimpleSubscriber<TInput, TOutput>
-        : Subscriber<TInput, TOutput>
+        : BaseSubscriber<TInput, TOutput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
         public ISerializer<TOutput> OutputSerializer { get; set; }

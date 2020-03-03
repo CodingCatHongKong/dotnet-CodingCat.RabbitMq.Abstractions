@@ -7,7 +7,7 @@ using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Subscriber : ISubscriber
+    public abstract class BaseSubscriber : ISubscriber
     {
         protected IModel Channel { get; }
 
@@ -25,7 +25,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #region Constructor(s)
 
-        public Subscriber(IModel channel, string queueName)
+        public BaseSubscriber(IModel channel, string queueName)
         {
             this.Channel = channel;
             this.QueueName = queueName;
@@ -65,7 +65,7 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Subscriber<TInput> : Subscriber
+    public abstract class BaseSubscriber<TInput> : BaseSubscriber
     {
         protected IProcessor<TInput> Processor { get; }
 
@@ -73,7 +73,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #region Constructor(s)
 
-        public Subscriber(
+        public BaseSubscriber(
             IModel channel,
             string queueName,
             IProcessor<TInput> processor
@@ -98,7 +98,7 @@ namespace CodingCat.RabbitMq.Abstractions
         }
     }
 
-    public abstract class Subscriber<TInput, TOutput> : Subscriber
+    public abstract class BaseSubscriber<TInput, TOutput> : BaseSubscriber
     {
         protected IProcessor<TInput, TOutput> Processor { get; }
 
@@ -106,7 +106,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         #region Constructor(s)
 
-        public Subscriber(
+        public BaseSubscriber(
             IModel channel,
             string queueName,
             IProcessor<TInput, TOutput> processor

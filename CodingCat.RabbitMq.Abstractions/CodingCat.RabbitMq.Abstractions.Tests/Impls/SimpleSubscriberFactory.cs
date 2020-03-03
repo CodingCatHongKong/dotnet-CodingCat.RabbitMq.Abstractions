@@ -2,7 +2,7 @@
 using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.Serializers.Interfaces;
 using RabbitMQ.Client;
-using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
+using ISubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {

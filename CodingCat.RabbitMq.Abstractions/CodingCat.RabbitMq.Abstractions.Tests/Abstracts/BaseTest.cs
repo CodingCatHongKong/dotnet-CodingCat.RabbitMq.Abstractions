@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using ISubscriber = CodingCat.RabbitMq.Abstractions.Interfaces.ISubscriber;
+using ISubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
 {

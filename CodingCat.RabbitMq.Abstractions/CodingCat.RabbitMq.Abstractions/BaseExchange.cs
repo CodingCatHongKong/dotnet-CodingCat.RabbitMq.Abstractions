@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CodingCat.RabbitMq.Abstractions
 {
-    public abstract class Exchange : IExchange
+    public abstract class BaseExchange : IExchange
     {
         public string Name { get; set; }
         public string RawExchangeType => this.ExchangeType.ToString().ToLower();
