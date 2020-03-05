@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
     [TestClass]
-    public class TestPublisherIssueHandling : BaseTest
+    public class TestPublisherIssuesHandling : BaseTest
     {
         [TestMethod]
         public void Test_NoResponse_IsTimedOut()
