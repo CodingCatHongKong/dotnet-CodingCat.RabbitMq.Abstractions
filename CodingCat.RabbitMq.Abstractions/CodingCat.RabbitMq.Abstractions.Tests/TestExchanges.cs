@@ -72,7 +72,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                     this.CreateStringSubscriber(
                         queue.Name,
                         this.StringProcessor
-                    ).Subscribe()
+                    )
                 )
                 .ToArray();
 

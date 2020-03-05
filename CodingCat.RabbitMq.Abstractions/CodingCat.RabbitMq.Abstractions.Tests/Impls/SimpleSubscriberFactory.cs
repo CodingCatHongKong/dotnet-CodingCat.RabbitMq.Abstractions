@@ -1,4 +1,5 @@
-﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.Mq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.Serializers.Interfaces;
 using RabbitMQ.Client;
 using ISubscriber = CodingCat.Mq.Abstractions.Interfaces.ISubscriber;
@@ -38,7 +39,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
             {
                 InputSerializer = this.inputSerializer,
                 IsAutoAck = true
-            };
+            }.Subscribe();
         }
     }
 
@@ -80,7 +81,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
                 InputSerializer = this.inputSerializer,
                 OutputSerializer = this.outputSerializer,
                 IsAutoAck = true
-            };
+            }.Subscribe();
         }
     }
 }

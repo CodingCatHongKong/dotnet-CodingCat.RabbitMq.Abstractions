@@ -1,4 +1,5 @@
-﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.Mq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using RabbitMQ.Client;
@@ -91,9 +92,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Abstracts
         public EventWaitHandle GetProcessedNotifier(ISubscriber subscriber)
         {
             var notifier = new AutoResetEvent(false);
-            subscriber
-                .Subscribe()
-                .Processed += (sender, e) => notifier.Set();
+            subscriber.Processed += (sender, e) => notifier.Set();
             return notifier;
         }
 

@@ -32,7 +32,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                     Thread.Sleep(TIMEOUT_SECONDS * 2000);
                     throw new Exception();
                 })
-            ).Subscribe();
+            );
 
             var notifier = new AutoResetEvent(false);
             var isManualTimedOut = false;

@@ -1,11 +1,14 @@
-﻿using CodingCat.Serializers.Interfaces;
+﻿using CodingCat.Mq.Abstractions.Interfaces;
+using CodingCat.Serializers.Interfaces;
 using RabbitMQ.Client;
+using System;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
     public class SimpleSubscriber<TInput> : BaseSubscriber<TInput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
+        public Exception LastException { get; private set; }
 
         #region Constructor(s)
 
@@ -21,6 +24,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
         {
             return this.InputSerializer.FromBytes(bytes);
         }
+
+        protected override void OnSerializationError(Exception ex)
+        {
+            this.LastException = ex;
+            base.OnSerializationError(ex);
+        }
     }
 
     public class SimpleSubscriber<TInput, TOutput>
@@ -28,6 +37,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
     {
         public ISerializer<TInput> InputSerializer { get; set; }
         public ISerializer<TOutput> OutputSerializer { get; set; }
+        public Exception LastException { get; private set; }
 
         #region Constructor(s)
 
@@ -47,6 +57,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
         protected override byte[] ToBytes(TOutput output)
         {
             return this.OutputSerializer.ToBytes(output);
+        }
+
+        protected override void OnSerializationError(Exception ex)
+        {
+            this.LastException = ex;
+            base.OnSerializationError(ex);
         }
     }
 }

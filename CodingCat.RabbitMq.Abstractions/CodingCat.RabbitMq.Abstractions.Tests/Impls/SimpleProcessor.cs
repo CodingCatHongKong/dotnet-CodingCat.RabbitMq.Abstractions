@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using CodingCat.Mq.Abstractions;
+using System.Collections.Generic;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
-    public class SimpleProcessor<TInput> : Processor<TInput>
+    public class SimpleProcessor<TInput> : BaseProcessor<TInput>
     {
         public List<TInput> ProcessedInputs { get; } = new List<TInput>();
 
@@ -13,7 +14,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
     }
 
     public class SimpleProcessor<TInput, TOutput>
-        : DelegatedProcessor<TInput, TOutput>
+        : BaseDelegatedProcessor<TInput, TOutput>
     {
         #region Constructor(s)
 

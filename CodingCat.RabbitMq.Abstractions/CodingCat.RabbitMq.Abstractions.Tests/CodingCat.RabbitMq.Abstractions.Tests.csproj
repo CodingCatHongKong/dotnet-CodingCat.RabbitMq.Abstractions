@@ -39,11 +39,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CodingCat.Mq.Abstractions, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CodingCat.Mq.Abstractions.0.1.0\lib\net461\CodingCat.Mq.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="CodingCat.Serializers, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CodingCat.Serializers.0.1.0\lib\net461\CodingCat.Serializers.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.28\lib\net46\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.1.2\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
@@ -70,10 +76,12 @@
     <Compile Include="Impls\SimpleQueue.cs" />
     <Compile Include="Impls\SimpleSubscriber.cs" />
     <Compile Include="Impls\SimpleSubscriberFactory.cs" />
+    <Compile Include="Impls\NotImplementedSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestPubSub.cs" />
     <Compile Include="TestExchanges.cs" />
     <Compile Include="TestPublisherIssuesHandling.cs" />
+    <Compile Include="TestSubscriberIssuesHandling.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

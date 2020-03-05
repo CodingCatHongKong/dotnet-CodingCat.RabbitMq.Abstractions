@@ -1,4 +1,5 @@
-﻿using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+﻿using CodingCat.Mq.Abstractions.Interfaces;
+using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using System;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests

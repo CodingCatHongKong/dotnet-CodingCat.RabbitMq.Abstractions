@@ -70,7 +70,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             var subscriber = this.CreateInt32Subscriber(
                 QUEUE_NAME,
                 new SimpleProcessor<int, int>(val => val + 1)
-            ).Subscribe();
+            );
 
             // Act
             var actual = int.MinValue;
