@@ -42,6 +42,20 @@ namespace CodingCat.RabbitMq.Abstractions
             );
         }
 
+        protected virtual void OnInOutError(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+        }
+
+        protected byte[] GetBody(Func<byte[]> callback)
+        {
+            try{ return callback(); }
+            catch (Exception ex){ this.OnInOutError(ex); }
+
+            return new byte[0];
+        }
+
         public void Dispose()
         {
             this.Channel?.Close();
@@ -64,7 +78,7 @@ namespace CodingCat.RabbitMq.Abstractions
 
         public virtual void Send(TInput input)
         {
-            this.Send(this.ToBytes(input), null);
+            this.Send(this.GetBody(() => this.ToBytes(input)), null);
         }
     }
 
@@ -100,10 +114,11 @@ namespace CodingCat.RabbitMq.Abstractions
                     .QueueDeclare(exclusive: false)
                     .QueueName;
                 var properties = this.GetBasicProperties();
+                var body = this.GetBody(() => this.ToBytes(input));
 
                 properties.ReplyTo = replyTo;
 
-                this.Send(this.ToBytes(input), properties);
+                this.Send(body, properties);
 
                 var output = this.GetFromReplyQueue(channel, replyTo);
                 channel.Close();
@@ -125,7 +140,14 @@ namespace CodingCat.RabbitMq.Abstractions
 
             consumer.Received += (sender, e) =>
             {
-                output = this.FromBytes(e.Body);
+                try
+                {
+                    output = this.FromBytes(e.Body);
+                }
+                catch(Exception ex)
+                {
+                    this.OnInOutError(ex);
+                }
                 notifier.Set();
             };
             channel.BasicConsume(
