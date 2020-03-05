@@ -53,6 +53,12 @@ namespace CodingCat.RabbitMq.Abstractions
             BasicDeliverEventArgs args
         );
 
+        protected virtual void OnSerializationError(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+        }
+
         public virtual void Dispose()
         {
             this.Disposing?.Invoke(this, null);
@@ -91,9 +97,19 @@ namespace CodingCat.RabbitMq.Abstractions
             BasicDeliverEventArgs args
         )
         {
-            var input = this.FromBytes(args.Body);
-            this.Processor.HandleInput(input);
+            var input = default(TInput);
 
+            try
+            {
+                input = this.FromBytes(args.Body);
+            }
+            catch (Exception ex)
+            {
+                this.OnSerializationError(ex);
+                return;
+            }
+
+            this.Processor.HandleInput(input);
             this.Processed?.Invoke(this, null);
         }
     }
@@ -126,16 +142,38 @@ namespace CodingCat.RabbitMq.Abstractions
             BasicDeliverEventArgs args
         )
         {
-            var input = this.FromBytes(args.Body);
-            var output = this.Processor.ProcessInput(input);
-            var replyTo = args.BasicProperties.ReplyTo;
+            var input = this.Processor.DefaultInput;
+            var output = this.Processor.DefaultOutput;
 
+            try
+            {
+                input = this.FromBytes(args.Body);
+            }
+            catch (Exception ex)
+            {
+                this.OnSerializationError(ex);
+            }
+
+            output = this.Processor.ProcessInput(input);
+
+            var replyTo = args.BasicProperties.ReplyTo;
             if (!string.IsNullOrEmpty(replyTo))
             {
+                var body = new byte[0];
+
+                try
+                {
+                    body = this.ToBytes(output);
+                }
+                catch (Exception ex)
+                {
+                    this.OnSerializationError(ex);
+                }
+
                 this.Channel.BasicPublish(
                     exchange: string.Empty,
                     routingKey: replyTo,
-                    body: this.ToBytes(output)
+                    body: body
                 );
             }
 
