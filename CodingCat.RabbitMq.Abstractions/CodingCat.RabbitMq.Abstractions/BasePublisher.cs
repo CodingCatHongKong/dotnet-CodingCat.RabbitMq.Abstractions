@@ -50,8 +50,8 @@ namespace CodingCat.RabbitMq.Abstractions
 
         protected byte[] GetBody(Func<byte[]> callback)
         {
-            try{ return callback(); }
-            catch (Exception ex){ this.OnInOutError(ex); }
+            try { return callback(); }
+            catch (Exception ex) { this.OnInOutError(ex); }
 
             return new byte[0];
         }
@@ -144,7 +144,7 @@ namespace CodingCat.RabbitMq.Abstractions
                 {
                     output = this.FromBytes(e.Body);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     this.OnInOutError(ex);
                 }

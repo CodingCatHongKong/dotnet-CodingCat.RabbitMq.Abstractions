@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using CodingCat.RabbitMq.Abstractions.Interfaces;
+﻿using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
 using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
 {
@@ -106,7 +106,7 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
 
         protected override IEnumerable<IQueue> DeclareQueues()
         {
-            using(var channel = this.UsingConnection.CreateModel())
+            using (var channel = this.UsingConnection.CreateModel())
             {
                 return new IQueue[]
                 {
