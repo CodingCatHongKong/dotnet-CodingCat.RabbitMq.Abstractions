@@ -4,6 +4,7 @@ using System.Threading;
 using CodingCat.RabbitMq.Abstractions.Interfaces;
 using CodingCat.RabbitMq.Abstractions.Tests.Abstracts;
 using CodingCat.RabbitMq.Abstractions.Tests.Impls;
+using CodingCat.Serializers.Impls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests
@@ -65,6 +66,39 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             Assert.IsNotNull((subscriber as SimpleSubscriber<int, int>).LastException);
         }
 
+        [TestMethod]
+        public void Test_TOutputSubscriberTimeout_IsReturnedDefault()
+        {
+            // Arrange
+            var queueName = nameof(Test_TOutputSubscriberTimeout_IsReturnedDefault);
+            var publisher = this.CreateInt32Publisher(
+                string.Empty,
+                queueName
+            );
+
+            var expected = new Random().Next(10, 100);
+            var subscriber = new SimpleSubscriberFactory<int, int>(
+                queueName,
+                new SimpleProcessor<int, int>(val =>
+                {
+                    Thread.Sleep(1500);
+                    return val;
+                })
+                {
+                    Timeout = TimeSpan.FromMilliseconds(10),
+                    DefaultOutput = expected
+                },
+                new Int32Serializer(),
+                new Int32Serializer()
+            ).GetSubscribed(this.UsingConnection.CreateModel());
+
+            // Act
+            var actual = publisher.Send(1);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
         protected override IEnumerable<IExchange> DeclareExchanges()
         {
             return new IExchange[] { };
@@ -84,6 +118,11 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
                     new SimpleQueue()
                     {
                         Name = nameof(Test_TOutputSubscriberSerializerException_IsHandled),
+                        IsDurable = false
+                    }.Declare(channel),
+                    new SimpleQueue()
+                    {
+                        Name = nameof(Test_TOutputSubscriberTimeout_IsReturnedDefault),
                         IsDurable = false
                     }.Declare(channel)
                 };

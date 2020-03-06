@@ -57,6 +57,27 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             Assert.IsFalse(isManualTimedOut);
         }
 
+        [TestMethod]
+        public void Test_TInputSerializeException_IsHandled()
+        {
+            const string QUEUE = nameof(Test_NoResponse_IsTimedOut);
+
+            // Arrange
+            var publisher = new SimplePublisher<string>(
+                this.UsingConnection.CreateModel()
+            )
+            {
+                RoutingKey = QUEUE,
+                InputSerializer = new NotImplementedSerializer<string>()
+            };
+
+            // Act
+            publisher.Send(string.Empty);
+
+            // Assert
+            Assert.IsNotNull(publisher.LastException);
+        }
+
         protected override IEnumerable<IExchange> DeclareExchanges()
         {
             return new BaseExchange[] { };
@@ -68,7 +89,8 @@ namespace CodingCat.RabbitMq.Abstractions.Tests
             {
                 return new string[]
                 {
-                    nameof(Test_NoResponse_IsTimedOut)
+                    nameof(Test_NoResponse_IsTimedOut),
+                    nameof(Test_TInputSerializeException_IsHandled)
                 }
                     .Select(name => new SimpleQueue()
                     {

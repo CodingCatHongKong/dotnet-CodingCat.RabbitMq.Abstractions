@@ -1,11 +1,13 @@
 ﻿using CodingCat.Serializers.Interfaces;
 using RabbitMQ.Client;
+using System;
 
 namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
 {
     public class SimplePublisher<TInput> : BasePublisher<TInput>
     {
         public ISerializer<TInput> InputSerializer { get; set; }
+        public Exception LastException { get; private set; }
 
         #region Constructor(s)
 
@@ -18,6 +20,12 @@ namespace CodingCat.RabbitMq.Abstractions.Tests.Impls
         protected override byte[] ToBytes(TInput input)
         {
             return this.InputSerializer.ToBytes(input);
+        }
+
+        protected override void OnInOutError(Exception ex)
+        {
+            this.LastException = ex;
+            base.OnInOutError(ex);
         }
     }
 
