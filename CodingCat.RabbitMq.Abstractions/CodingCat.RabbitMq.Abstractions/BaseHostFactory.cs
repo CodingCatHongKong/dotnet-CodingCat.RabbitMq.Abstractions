@@ -14,17 +14,17 @@ namespace CodingCat.RabbitMq.Abstractions
     public abstract class BaseHostFactory : BackgroundService
     {
         protected IConnection Connection { get; private set; }
-        protected ISubscriberFactory[] SubscriberFactories { get; private set; }
+        protected IInitializer RabbitMqInitializer { get; private set; }
 
         #region Constructor(s)
 
         public BaseHostFactory(
             IConnection connection,
-            IEnumerable<ISubscriberFactory> subscriberFactories
+            IInitializer rabbitMqInitializer
         )
         {
             this.Connection = connection;
-            this.SubscriberFactories = subscriberFactories.ToArray();
+            this.RabbitMqInitializer = rabbitMqInitializer;
         }
 
         #endregion Constructor(s)
@@ -38,13 +38,9 @@ namespace CodingCat.RabbitMq.Abstractions
 
         protected virtual void Subscribe(CancellationToken stoppingToken)
         {
-            var subscribers = this.SubscriberFactories
-                .Select(factory =>
-                {
-                    var channel = this.Connection.CreateModel();
-                    return factory.GetSubscribed(channel);
-                })
-                .ToArray();
+            var subscribers = this.RabbitMqInitializer
+                .Configure(this.Connection.CreateModel())
+                .GetSubscribed(this.Connection);
 
             Console.WriteLine(new StringBuilder()
                 .Append($"Subscribed {subscribers.Count()} ")
