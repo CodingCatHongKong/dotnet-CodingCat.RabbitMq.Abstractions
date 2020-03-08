@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.1.0</Version>
+    <Authors>Coding Cat (Hong Kong) Limited</Authors>
+    <PackageProjectUrl>https://github.com/CodingCatHongKong/dotnet-CodingCat.RabbitMq.Abstractions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CodingCatHongKong/dotnet-CodingCat.RabbitMq.Abstractions</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/CodingCatHongKong/dotnet-CodingCat.RabbitMq.Abstractions/blob/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CodingCat.Mq.Abstractions" Version="0.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.2" />
+    <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
+  </ItemGroup>
+
+</Project>
