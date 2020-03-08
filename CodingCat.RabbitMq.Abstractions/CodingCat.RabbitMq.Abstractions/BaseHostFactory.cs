@@ -33,22 +33,20 @@ namespace CodingCat.RabbitMq.Abstractions
             CancellationToken stoppingToken
         )
         {
-            return Task.Run(() => this.Subscribe(stoppingToken));
-        }
+            return Task.Run(() =>
+            {
+                var subscribers = this.RabbitMqInitializer
+                    .Configure(this.Connection.CreateModel())
+                    .GetSubscribed(this.Connection);
 
-        protected virtual void Subscribe(CancellationToken stoppingToken)
-        {
-            var subscribers = this.RabbitMqInitializer
-                .Configure(this.Connection.CreateModel())
-                .GetSubscribed(this.Connection);
+                Console.WriteLine(new StringBuilder()
+                    .Append($"Subscribed {subscribers.Count()} ")
+                    .Append("subscriber(s)")
+                    .ToString()
+                );
 
-            Console.WriteLine(new StringBuilder()
-                .Append($"Subscribed {subscribers.Count()} ")
-                .Append("subscriber(s)")
-                .ToString()
-            );
-
-            stoppingToken.Register(() => Dispose(subscribers));
+                stoppingToken.Register(() => Dispose(subscribers));
+            });
         }
 
         public override void Dispose()
