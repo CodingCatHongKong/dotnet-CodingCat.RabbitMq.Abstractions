@@ -145,3 +145,9 @@ public MessagePublisher : BasePublisher<string, bool>
     protected override bool FromBytes(byte[] bytes) { ... }
 }
 ```
+
+
+### Target Frameworks
+
+- .NET 4.6.1+
+- .NET Standard 2.0+
